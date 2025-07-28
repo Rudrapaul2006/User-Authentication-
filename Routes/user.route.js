@@ -6,6 +6,8 @@ let userRoute = express.Router();
 //User Routes :
 userRoute.post("/register" , userResgister);
 userRoute.post("/login" , userLogin);
+
+//Curd operation : 
 userRoute.get("/profile" , userProfile);
 userRoute.get("/logout" , userLogout);
 userRoute.post("/update" , userUpdate);

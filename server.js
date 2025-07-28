@@ -36,5 +36,5 @@ server.use("/api/user" , userRoute);
 
 //Server Port :
 server.listen(port , () => {
-    console.log(chalk.yellow(`Server Running at port in : ${port}`));
+    console.log(chalk.yellow(`Server Running at port in : http://localhost:${port}`));
 })
