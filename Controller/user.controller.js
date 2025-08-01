@@ -5,17 +5,25 @@ import jwt from 'jsonwebtoken';
 
 //user register :
 export let userResgister = async (req, res) => {
-    let { name, email, password } = req.body;
-    if (!name || !email || !password) {
+    let { name, email, password, role } = req.body;
+    if (!name || !email || !password || !role) {
         return res.json({
-            massage: "All fields are required",
-            success: false
+            massage: "All fields are required ..",
+            success: false 
         })
     }
 
+     // Check valid role before user creation
+    if (role !== "user" && role !== "admin") {
+        return res.json({
+            massage: "Role must be 'admin' or 'user'",
+            success: false
+        });
+    }
+
     try {
-        let existsUser = await User.findOne({ email });
-        if (existsUser) {
+        let user = await User.findOne({ email });
+        if (user) { 
             return res.json({
                 massage: "user already exists ..",
                 success: false
@@ -23,16 +31,15 @@ export let userResgister = async (req, res) => {
         }
 
         let hashedpassword = await bcrypt.hash(password, 10);
-        let user = await User.create({ name, email, password: hashedpassword });
+        user = await User.create({ name, email, password: hashedpassword, role });
 
         let token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1D" });
         res.cookie("token", token);
 
-
         return res.json({
-            massage: "User Created ..",
-            user: user,
-            success: true
+            massage : "User Created ...",
+            user : user,
+            success : true
         })
 
     } catch (error) {
@@ -87,38 +94,38 @@ export let userLogin = async (req, res) => {
 export let userUpdate = async (req, res) => {
     try {
         let token = req.cookies.token;
-        if(!token){
+        if (!token) {
             return res.json({
-            message: "Token Not Found ..",
-            success: false
+                message: "Token Not Found ..",
+                success: false
             })
         }
 
-        let decoded = jwt.verify(token , process.env.JWT_SECRET)
+        let decoded = jwt.verify(token, process.env.JWT_SECRET)
         let user = await User.findById(decoded.id);
-        if(!user) {
+        if (!user) {
             return res.json({
-            message: "User Not Found ..",
-            success: false
+                message: "User Not Found ..",
+                success: false
             })
         }
 
-        let {name , email} = req.body;
-        if(name === "" || email === "") {
+        let { name, email } = req.body;
+        if (name === "" || email === "") {
             return res.json({
-            massage : "User and email must be provided ..",
-            success : false
+                massage: "User and email must be provided ..",
+                success: false
             })
         }
 
-        if(name) user.name = name;
-        if(email) user.email = email;
+        if (name) user.name = name;
+        if (email) user.email = email;
         user.save();
 
         return res.json({
-            massage : "User Updated successfully ..",
-            updateduser : user,
-            success : true
+            massage: "User Updated successfully ..",
+            updateduser: user,
+            success: true
         })
 
     } catch (error) {
@@ -199,26 +206,26 @@ export let userLogout = async (req, res) => {
 export let userDelete = async (req, res) => {
     try {
         let token = req.cookies.token;
-        if(!token){
+        if (!token) {
             return res.json({
-            message: "Token Not Found ..",
-            success: false
+                message: "Token Not Found ..",
+                success: false
             })
         }
 
-        let decoded = jwt.verify(token , process.env.JWT_SECRET)
+        let decoded = jwt.verify(token, process.env.JWT_SECRET)
         let user = await User.findByIdAndDelete(decoded.id);
-        if(!user) {
+        if (!user) {
             return res.json({
-            message: "User Not Found ..",
-            success: false
+                message: "User Not Found ..",
+                success: false
             })
         }
-        
+
         return res.json({
-            massage : "User Deleted successfully ..",
-            deleteduser : {name : user.name , email : user.email},
-            success : true
+            massage: "User Deleted successfully ..",
+            deleteduser: { name: user.name, email: user.email },
+            success: true
         })
 
     } catch (error) {

@@ -9,7 +9,7 @@ import userRoute from './Routes/user.route.js';
 dotenv.config();
 
 mongoose.connect(process.env.MONGO_URL , {
-    dbName : "User_Authentication",
+    dbName : "User_Authentication", 
 }).then(() => {
     console.log(chalk.bgBlack.cyan("MongoDB Connected ..."));
 }).catch((err) => {
@@ -26,7 +26,7 @@ server.use(cookieParser());
 
 //Server Routing :
 server.get('/' , (req , res) => {
-    res.send("api is Working ...")
+    res.send("api is Working ...") 
 })
 
 
@@ -34,7 +34,7 @@ server.get('/' , (req , res) => {
 server.use("/api/user" , userRoute);
 
 
-//Server Port :
+//Server Port : 
 server.listen(port , () => {
     console.log(chalk.yellow(`Server Running at port in : http://localhost:${port}`));
 })
