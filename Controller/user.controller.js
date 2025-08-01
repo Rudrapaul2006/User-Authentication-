@@ -9,11 +9,11 @@ export let userResgister = async (req, res) => {
     if (!name || !email || !password || !role) {
         return res.json({
             massage: "All fields are required ..",
-            success: false 
+            success: false
         })
     }
 
-     // Check valid role before user creation
+    // Check valid role before user creation
     if (role !== "user" && role !== "admin") {
         return res.json({
             massage: "Role must be 'admin' or 'user'",
@@ -23,7 +23,7 @@ export let userResgister = async (req, res) => {
 
     try {
         let user = await User.findOne({ email });
-        if (user) { 
+        if (user) {
             return res.json({
                 massage: "user already exists ..",
                 success: false
@@ -37,9 +37,9 @@ export let userResgister = async (req, res) => {
         res.cookie("token", token);
 
         return res.json({
-            massage : "User Created ...",
-            user : user,
-            success : true
+            massage: "User Created ...",
+            user: user,
+            success: true
         })
 
     } catch (error) {
@@ -89,6 +89,7 @@ export let userLogin = async (req, res) => {
         console.error(error);
     }
 }
+
 
 //User Profile Update by id : 
 export let userUpdate = async (req, res) => {
@@ -237,3 +238,49 @@ export let userDelete = async (req, res) => {
     }
 };
 
+
+
+//Get all User's Profile :
+export let getAllProfile = async (req, res) => {
+    try {
+        let token = req.cookies.token;
+        if (!token) {
+            return res.json({
+                massage : "Token Not availavle or token got expired ...",
+                success : false
+            })
+        }
+        let decoded = jwt.verify(token, process.env.JWT_SECRET)
+        let user = await User.findById(decoded.id);
+
+        if (user.role === "user"){
+            return res.json({
+                massage : "User can't fetched , profile's .. (Only Admin's can)",
+                success : false 
+            })
+        }
+        if (!user || user.role !== "admin") {
+            res.json({
+                massage: "user not found ..",
+                success: false
+            })
+        } 
+
+        let users = await User.find().select("-password");
+
+        if(!users){
+            return res.json({
+                massage : "Profile not fetched successfully ...",
+                success : false
+            })
+        }
+
+        return res.json({
+            massage: "User's profile's fetched successfully ...",
+            users : users,
+            success: true
+        })
+    } catch (error) {
+        console.error(error);
+    }
+}
